@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Built-By: guru
+Build-Jdk: 1.8.0_101
+Specification-Title: InformationRetreival Lucene
+Specification-Version: 04
+Implementation-Title: InformationRetreival Lucene
+Implementation-Version: 04
+Implementation-Vendor-Id: information.retreival
+Created-By: Maven Integration for Eclipse
+
