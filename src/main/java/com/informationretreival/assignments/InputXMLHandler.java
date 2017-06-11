@@ -2,6 +2,7 @@ package com.informationretreival.assignments;
 
 
 import java.util.ArrayList;
+import java.util.Stack;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -16,8 +17,17 @@ public class InputXMLHandler extends DefaultHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(InputXMLHandler.class);
 	
-    private List<DocumentStructure> documentList = null;
+    //Stores the extracted elements from XML file
+    private List<DocumentStructure> documentList = new ArrayList<>();
+    
     private DocumentStructure doc =  null;
+    
+    //As we read any XML element we will push that in this stack
+    private Stack<String> elementStack = new Stack<String>();
+ 
+    //As we complete one user block in XML, we will push the Document instance in documentList
+    private Stack<Object> objectStack = new Stack<Object>();
+ 
     
 	public List<DocumentStructure> getDocumentList() {
 		return documentList;
@@ -30,24 +40,17 @@ public class InputXMLHandler extends DefaultHandler {
             throws SAXException {
 
 		//System.out.println("Start Element :" + qName);
+    	this.elementStack.push(qName);
     	
-        if (qName.equalsIgnoreCase("table")) {
-
-            //create a new Employee and put it in Map
-            String name = attributes.getValue("name");
-            System.out.println(name);
-         	doc = new DocumentStructure();
-        	doc.setName(name);
-        	documentList = new ArrayList<>();
-        
-        } else if (qName.equalsIgnoreCase("column")) {
+    	if (qName.equalsIgnoreCase("column")) {
         	
         	String attributeName =  attributes.getValue("name");
+        	//System.out.println(attributes.get);
+        	doc = new DocumentStructure();
         	
         	if (attributeName.equalsIgnoreCase("line_id")) {
-        		bLineId = true;
-        	
-        	} else if (attributeName.equalsIgnoreCase("play_name")) {
+        		bLineId = true; 
+        	} else if (attributeName.equalsIgnoreCase("play_name") ) {
         		bPlayName = true;
         	} else if (attributeName.equalsIgnoreCase("speech_number")) {
         		bSpeechNumber = true;
@@ -58,13 +61,18 @@ public class InputXMLHandler extends DefaultHandler {
         	} else if (attributeName.equalsIgnoreCase("text_entry")) {
         		bTextEntry = true;
         	}
+        	
+        	this.objectStack.push(doc);
         }
         
     }
 
     @Override
     public void endElement(String uri, String localName, String qName) throws SAXException {
-        if (qName.equalsIgnoreCase("table")) {
+        
+    	this.elementStack.pop();
+    	
+    	if (qName.equalsIgnoreCase("column")) {
             //add Employee object to list
             documentList.add(doc);
                
@@ -75,28 +83,46 @@ public class InputXMLHandler extends DefaultHandler {
     @Override
     public void characters(char ch[], int start, int length) throws SAXException {
     	
-        if (bLineId) {
-        	doc.setLineId((Integer.parseInt(new String(ch, start, length))));
-        	bLineId = false;
-        } else if (bPlayName) {
-            doc.setPlayName(new String(ch, start, length));
-            bPlayName = false;
-        } else if (bSpeechNumber) {
-            doc.setSpeechNumber(new String(ch, start, length));
-            bSpeechNumber = false;
-        } else if (bLineNumber) {
-            doc.setLineNumber(new String(ch, start, length));
-            bLineNumber = false;
-        } else if (bSpeaker) {
-            doc.setSpeaker(new String(ch, start, length));
-            bSpeaker = false;
-        } else if (bTextEntry) {
-            doc.setTextEntry(new String(ch, start, length));
-            bTextEntry = false;
+        String value = new String(ch, start, length).trim();
+        
+        if (value.length() == 0 && value.equalsIgnoreCase("null"))
+        {
+            return; // ignore white space
         }
         
         
-
+        	if (bLineId) {
+        		DocumentStructure doc = (DocumentStructure) this.objectStack.peek();
+            	doc.setLineId((Integer.parseInt(value)));
+            	bLineId = false;
+            } else if (bPlayName) {
+            	DocumentStructure doc = (DocumentStructure) this.objectStack.peek();
+                doc.setPlayName(value);
+                bPlayName = false;
+            } else if (bSpeechNumber) {
+            	DocumentStructure doc = (DocumentStructure) this.objectStack.peek();
+                doc.setSpeechNumber(value);
+                bSpeechNumber = false;
+            } else if (bLineNumber) {
+            	DocumentStructure doc = (DocumentStructure) this.objectStack.peek();
+                doc.setLineNumber(value);
+                bLineNumber = false;
+            } else if (bSpeaker) {
+            	DocumentStructure doc = (DocumentStructure) this.objectStack.peek();
+                doc.setSpeaker(value);
+                bSpeaker = false;
+            } else if (bTextEntry) {
+            	DocumentStructure doc = (DocumentStructure) this.objectStack.peek();
+                doc.setTextEntry(value);
+                bTextEntry = false;
+            }
+        }
+    /**
+     * Utility method for getting the current element in processing
+     * */
+    private String currentElement()
+    {
+        return this.elementStack.peek();
     }
     
     
