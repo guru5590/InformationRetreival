@@ -3,6 +3,7 @@ package com.informationretreival.assignments;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -62,14 +63,13 @@ public class XMLParserLuceneAssignment {
 		}
 
 		List<DocumentStructure> mergedlist = prepareDocument(doclist);
-		ArrayList<String> indexedTermsList = null;
+		HashMap<String, ArrayList<String>> termsdict = null;
 
 		DocumentIndexerSearcher index = new DocumentIndexerSearcher();
 		try {
 			index.indexDocument(mergedlist);
-			indexedTermsList = index.computeIndexStatsAndFrequentTerms();
-			System.out.println(indexedTermsList.toString());
-			// index.searchUsingBooleanQuery(indexedTermsList);
+			termsdict = index.computeIndexStatsAndFrequentTerms();
+
 		} catch (ParseException e) {
 			LOG.error("Exception occured while parsing the query : " + e.getMessage());
 			e.printStackTrace();
@@ -86,10 +86,10 @@ public class XMLParserLuceneAssignment {
 
 		try {
 			// "Performing Boolean OR Operation"
-			index.searchUsingBooleanQuery(indexedTermsList, ProgramConstants.BOOLEAN_OR);
+			index.searchUsingBooleanQuery(termsdict, ProgramConstants.BOOLEAN_OR);
 
 			// "Performing Boolean AND Operation"
-			index.searchUsingBooleanQuery(indexedTermsList, ProgramConstants.BOOLEAN_AND);
+			index.searchUsingBooleanQuery(termsdict, ProgramConstants.BOOLEAN_AND);
 
 		} catch (ParseException e) {
 			LOG.error("Exception occured while parsing the query : " + e.getMessage());

@@ -2,6 +2,7 @@ package com.informationretreival.assignments;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
@@ -66,41 +67,52 @@ public class DocumentIndexerSearcher {
 		System.out.println("Indexing Complete");
 	}
 
-	public ArrayList<String> computeIndexStatsAndFrequentTerms() throws IOException, Exception {
+	public HashMap<String, ArrayList<String>> computeIndexStatsAndFrequentTerms() throws IOException, Exception {
 
-		ArrayList<String> indexedTermsList = new ArrayList<String>();
+		HashMap<String, ArrayList<String>> termsdictionary = new HashMap<>();
+		
 		IndexReader ireader = DirectoryReader.open(indexDirectory);
 		System.out.println("Total number of Documents in Index = " + ireader.maxDoc());
 
 		for (String field : indexfields) {
+			ArrayList<String> indexedTermsList = new ArrayList<String>();
 			org.apache.lucene.misc.TermStats[] terms = HighFreqTerms.getHighFreqTerms(ireader,
 					ProgramConstants.numTopFields, field, new TotalTermFreqComparator());
 			System.out.println("Top Terms For the indexed field " + field.toUpperCase());
 			
 			for (int i = 0; i < terms.length; i++) {
 				System.out.println(terms[i].toString());
-				if (field.equalsIgnoreCase(ProgramConstants.TEXT_ENTRY))
-					indexedTermsList.add(terms[i].termtext.utf8ToString());
+				indexedTermsList.add(terms[i].termtext.utf8ToString());
 
 			}
+			termsdictionary.put(field, indexedTermsList);
 			System.out.println();
 		}
-		return indexedTermsList;
+		
+		return termsdictionary;
 	}
 
-	private BooleanQuery createBooleanQuery(ArrayList<String> indexedTermsList, String fieldname, String clause) {
+	private BooleanQuery createBooleanQuery(HashMap<String, ArrayList<String>> dictTerms, String clause) {
 		Random randomGenerator = new Random();
-		int randomIntBound = indexedTermsList.size();
-
+		int randomIntBound = dictTerms.size();
+		
+		List<String> keys      = new ArrayList<String>(dictTerms.keySet());
+		String       randomKey = keys.get( randomGenerator.nextInt(keys.size()) );
+		ArrayList<String>  valuelist     = dictTerms.get(randomKey);
+		
 		BooleanQuery booleanQuery = new BooleanQuery.Builder().build();
 
 		// create a term to to be used in search
-		Term term1 = new Term(fieldname, indexedTermsList.get(randomGenerator.nextInt(randomIntBound)));
+		Term term1 = new Term(randomKey, valuelist.get(randomGenerator.nextInt(randomIntBound)));
 
 		// create the term query object
 		Query query1 = new TermQuery(term1);
-
-		Term term2 = new Term(fieldname, indexedTermsList.get(randomGenerator.nextInt(randomIntBound)));
+		
+		List<String> keys2      = new ArrayList<String>(dictTerms.keySet());
+		String       randomKey2 = keys2.get( randomGenerator.nextInt(keys.size()) );
+		ArrayList<String>  valuelist2     = dictTerms.get(randomKey2);
+		
+		Term term2 = new Term(randomKey2, valuelist2.get(randomGenerator.nextInt(randomIntBound)));
 		// create the term query object
 		Query query2 = new TermQuery(term2);
 
@@ -119,7 +131,7 @@ public class DocumentIndexerSearcher {
 		return booleanQuery;
 	}
 
-	public void searchUsingBooleanQuery(ArrayList<String> indexedTermsList, String booleanOperation)
+	public void searchUsingBooleanQuery(HashMap<String, ArrayList<String>> dictTerms, String booleanOperation)
 			throws IOException, ParseException {
 
 		// Now search the index:
@@ -136,8 +148,7 @@ public class DocumentIndexerSearcher {
 			long totalTime = 0;
 			long totalHits = 0;
 			for (int i = 1; i <= ProgramConstants.numBooleanQueries; ++i) {
-				BooleanQuery booleanQuery = createBooleanQuery(indexedTermsList, ProgramConstants.TEXT_ENTRY,
-						booleanOperation);
+				BooleanQuery booleanQuery = createBooleanQuery(dictTerms, booleanOperation);
 				long startTime = System.nanoTime();
 				ScoreDoc[] hits = isearcher.search(booleanQuery, loop).scoreDocs;
 				long endTime = System.nanoTime();
