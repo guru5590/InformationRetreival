@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+- phpMyAdmin XML Dump
+- version 3.4.5
+- http://www.phpmyadmin.net
+-
+- Host: localhost
+- Generation Time: Apr 24, 2012 at 08:15 PM
+- Server version: 5.5.16
+- PHP Version: 5.3.8
+-->
+
+<pma_xml_export version="1.0" xmlns:pma="http://www.phpmyadmin.net/some_doc_url/">
+    <!--
+    - Structure schemas
+    -->
+    <pma:structure_schemas>
+        <pma:database name="bill" collation="latin1_swedish_ci" charset="latin1">
+            <pma:table name="bill_play_text">
+                CREATE TABLE `bill_play_text` (
+                  `line_id` bigint(20) NOT NULL AUTO_INCREMENT,
+                  `play_name` varchar(100) NOT NULL,
+                  `speech_number` varchar(100) DEFAULT NULL,
+                  `line_number` varchar(100) DEFAULT NULL,
+                  `speaker` varchar(100) DEFAULT NULL,
+                  `text_entry` varbinary(2000) NOT NULL,
+                  PRIMARY KEY (`line_id`)
+                ) ENGINE=MyISAM AUTO_INCREMENT=111397 DEFAULT CHARSET=latin1;
+            </pma:table>
+        </pma:database>
+    </pma:structure_schemas>
+
+    <!--
+    - Database: 'bill'
+    -->
+    <database name="bill">
+        <!-- Table bill_play_text -->
+        <table name="bill_play_text">
+            <column name="line_id">1</column>
+            <column name="play_name">Henry IV</column>
+            <column name="speech_number"></column>
+            <column name="line_number"></column>
+            <column name="speaker"></column>
+            <column name="text_entry">ACT I</column>
+        </table>
+        <table name="bill_play_text">
+            <column name="line_id">2</column>
+            <column name="play_name">Henry IV</column>
+            <column name="speech_number"></column>
+            <column name="line_number"></column>
+            <column name="speaker"></column>
+            <column name="text_entry">SCENE I. London. The palace.</column>
+        </table>
+        <table name="bill_play_text">
+            <column name="line_id">111395</column>
+            <column name="play_name">A Winters Tale</column>
+            <column name="speech_number">38</column>
+            <column name="line_number">5.3.183</column>
+            <column name="speaker">LEONTES</column>
+            <column name="text_entry">We were dissever'd: hastily lead away.</column>
+        </table>
+        <table name="bill_play_text">
+            <column name="line_id">111396</column>
+            <column name="play_name">A Winters Tale</column>
+            <column name="speech_number">38</column>
+            <column name="line_number"></column>
+            <column name="speaker">LEONTES</column>
+            <column name="text_entry">Exeunt</column>
+        </table>
+    </database>
+</pma_xml_export>
