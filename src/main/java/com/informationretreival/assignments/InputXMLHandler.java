@@ -87,7 +87,7 @@ public class InputXMLHandler extends DefaultHandler {
         
         if (value.length() == 0 && value.equalsIgnoreCase("null"))
         {
-            return; // ignore white space
+            return; // ignore white space and null values
         }
         
         

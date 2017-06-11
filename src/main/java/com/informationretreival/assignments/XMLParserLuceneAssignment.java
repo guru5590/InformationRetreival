@@ -21,19 +21,18 @@ public class XMLParserLuceneAssignment {
 	private static final Logger LOG = LoggerFactory.getLogger(XMLParserLuceneAssignment.class);
 
 	public static void main(String[] args) {
-		
+
 		SAXParserFactory saxParserfactory = SAXParserFactory.newInstance();
-		
-		if (args.length != 1){
+
+		if (args.length != 1) {
 			System.out.println("No input file Xml file found, Please run the program with xmlfile as input");
 			System.exit(1);
 		}
-		
+
 		File file = new File(args[0]);
 		boolean fileExists = file.exists();
 		List<DocumentStructure> doclist = null;
-		
-		
+
 		if (!fileExists) {
 			LOG.error("Input XML File Not found : " + file.getName());
 		}
@@ -44,17 +43,22 @@ public class XMLParserLuceneAssignment {
 			saxParser.parse(file, handler);
 			// Get DocumentStructure list
 			doclist = handler.getDocumentList();
-			// print Document information
-
+			if (doclist.size() <= 0) {
+				System.out.println("No document of the xml is parsed, Exiting the program");
+				System.exit(1);
+			}
 		} catch (ParserConfigurationException e) {
 			LOG.error("Parser configuration Exception caught : " + e.getMessage());
 			e.printStackTrace();
+			System.exit(1);
 		} catch (SAXException e) {
 			LOG.error("SAX Exception caught : " + e.getMessage());
 			e.printStackTrace();
+			System.exit(1);
 		} catch (IOException e) {
 			LOG.error("IO Exception caught : " + e.getMessage());
 			e.printStackTrace();
+			System.exit(1);
 		}
 
 		List<DocumentStructure> mergedlist = prepareDocument(doclist);
@@ -65,31 +69,36 @@ public class XMLParserLuceneAssignment {
 			index.indexDocument(mergedlist);
 			indexedTermsList = index.computeIndexStatsAndFrequentTerms();
 			System.out.println(indexedTermsList.toString());
-			//index.searchUsingBooleanQuery(indexedTermsList);
+			// index.searchUsingBooleanQuery(indexedTermsList);
 		} catch (ParseException e) {
 			LOG.error("Exception occured while parsing the query : " + e.getMessage());
 			e.printStackTrace();
+			System.exit(1);
 		} catch (IOException e) {
 			LOG.error("Exception occured while fetching index : " + e.getMessage());
 			e.printStackTrace();
+			System.exit(1);
 		} catch (Exception e) {
 			LOG.error("Exception occured while indexing document : " + e.getMessage());
 			e.printStackTrace();
+			System.exit(1);
 		}
 
 		try {
-			//"Performing Boolean OR Operation"
-			index.searchUsingBooleanQuery(indexedTermsList,ProgramConstants.BOOLEAN_OR);
-			
-			//"Performing Boolean AND Operation"
-			index.searchUsingBooleanQuery(indexedTermsList,ProgramConstants.BOOLEAN_AND);
-			
+			// "Performing Boolean OR Operation"
+			index.searchUsingBooleanQuery(indexedTermsList, ProgramConstants.BOOLEAN_OR);
+
+			// "Performing Boolean AND Operation"
+			index.searchUsingBooleanQuery(indexedTermsList, ProgramConstants.BOOLEAN_AND);
+
 		} catch (ParseException e) {
 			LOG.error("Exception occured while parsing the query : " + e.getMessage());
 			e.printStackTrace();
+			System.exit(1);
 		} catch (IOException e) {
 			LOG.error("Exception occured while fetching index : " + e.getMessage());
 			e.printStackTrace();
+			
 		}
 
 	}
